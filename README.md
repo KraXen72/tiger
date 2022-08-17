@@ -79,3 +79,4 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 - fix typos in readme lol
 - better/test playlist support
 - make it a global command you can call from the terminal from anywhere
+- fix bugs (pls report in issues)
