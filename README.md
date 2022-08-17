@@ -17,12 +17,13 @@ Have you ever downloaded music from youtube, but a bunch of stuff is wrong with 
 Like there's no album cover, half the tags are missing, the bitrate is questionable and the filename has the downloader's name appended at the end? Yeah, me too, that's why i've made this.
   
 # features
-- download in the highest bitrate youtube provides (128kbps)
-- automatically infer most of the tags from the music video (you can enter the remaining ones)
-- small GUI to quickly crop/padd the video thumbnail as an album cover (or provide your own)
-- name the file appropriately afterwards
-- smart stripping/parsing of different kinds of youtube urls (youtube music, youtube, timestamp, playlist)
-- fast & easy to use
+- **fast & easy to use**. usually just hit enter a few times to confirm the tags.
+- **download in the highest bitrate youtube provides** (128kbps)
+- **automatically infer most of the tags** from the music video (you can enter the remaining ones)
+- **tkiner GUI** to quickly crop/pad the video thumbnail as an album cover
+  - **with Drag & Drop support**: you can drop a new cover into the tkinter window to override it.
+- **smart stripping/parsing of url** (youtube music, youtube, timestamp, playlist)
+- **option to auto transcode** to 128kb/s (to ensure consistency) or 320kb/s (if you're a madlad, you can change it in the code lol)
   
 # install & usage
 ```
@@ -52,6 +53,7 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 - **why python?????** cause most youtube downloading stuff is already written in python
 - **why tkinter????** because i couldn't be bothered to set up flask. this works well enough.
 - **why mp3????** with the medium quality youtube provides, it doesen't make sense to transcode to flac or whatever. You can pr ogg transcoding if you feel like adding it.
+- **why tiger????** i had an empty bottle of tiger energy drink in front of me + it sounds cool & has a cool ascii art
 - it should *in theory* be able to download full playlists but i haven't tested it.
 - you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of an youtube video quickly (hold ctrl to download instead of clipboard)
   
