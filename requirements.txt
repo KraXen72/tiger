@@ -1,0 +1,8 @@
+yt-dlp
+tinytag
+ffmpy
+eyed3
+urllib
+tkinter
+Pillow
+python-tkdnd
