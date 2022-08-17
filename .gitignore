@@ -1,0 +1,7 @@
+requirements2.txt
+config.json
+musicdl_assets/*
+!musicdl_assets/thumb[YBHxSFI_Q3Q].jpg
+!musicdl_assets/out.jpg
+__pycache__/*
+__pycache__
