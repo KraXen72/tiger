@@ -74,3 +74,8 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 ## look the tags are there!
   
 ![tags](screenshots/look%20ma%20tags.png)
+  
+# things for the future (feel free to pr)
+- fix typos in readme lol
+- better/test playlist support
+- make it a global command you can call from the terminal from anywhere
