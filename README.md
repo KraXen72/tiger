@@ -67,4 +67,8 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 
   ![player1](screenshots/player1.png)
   ![player2](screenshots/player2.png)
-</p>
+</p>  
+  
+## look the tags are there!
+  
+![tags](screenshots/look%20ma%20tags.png)

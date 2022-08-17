@@ -5,3 +5,4 @@ musicdl_assets/*
 !musicdl_assets/out.jpg
 __pycache__/*
 __pycache__
+*.mp3
