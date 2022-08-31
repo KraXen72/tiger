@@ -11,6 +11,8 @@ current_pil_img = ""
 current_image_path = ""
 current_padding_color = (0, 0, 0)
 
+instruct_image_h = 230
+
 oob_hint = "(out of bounds) click on the image to pick padding color"
 
 # utils
@@ -47,9 +49,10 @@ creates a tkinter gui, then uses the arrow keys to select thumbnail mode. enter 
 def pick_thumb_mode(thumb_fullpath):
     global root
     root = tkinterDnD.Tk()
+    root.title("Thumbnail to Album Art editor v2")
 
     global canvas
-    canvas = tk.Canvas(root, width=wsize, height=wsize, borderwidth=0, highlightthickness=0, bg="white")
+    canvas = tk.Canvas(root, width=wsize, height=wsize + instruct_image_h, borderwidth=0, highlightthickness=0, bg="white")
 
     global thumb_photoimg
     global new_height
@@ -70,15 +73,10 @@ def pick_thumb_mode(thumb_fullpath):
     startx = (wsize/2) - (rsize/2)
     crop_rect = canvas.create_rectangle(startx, top_offset, startx + rsize, rsize + top_offset, outline="black", width=5)
 
-    global text1
-    global text2
-    top_instructions = """Pick region for album cover. Enter is submit.
-- click on image to pick a color used for padding (in case of padded mode).
-- right-click to reset the padding color back to default (black).
-- the padding color doesen't matter if you select the 'center' option.
-"""
-    text1 = canvas.create_text(320, 50, text=top_instructions, font=('Helvetica','12','bold'), fill="gray")
-    text2 = canvas.create_text(320, 605, text="Use arrow keys to select album cover mode. (top = padded, bottom = center)", font=('Helvetica','12','bold'), fill="gray")
+    # instructions 0.359375 is to get 230 px
+    instruct_pil_img = Image.open("instructions.png")
+    instruct_imagetk = ImageTk.PhotoImage(instruct_pil_img)
+    canvas.create_image(wsize/2, (wsize + instruct_image_h) - (instruct_image_h / 2), image=instruct_imagetk)
 
     canvas.bind_all("<Left>", left)
     canvas.bind_all("<Down>", center)
@@ -173,13 +171,13 @@ def click(e):
                 r,g,b = getpixel
             elif len(getpixel) == 4:
                 r,g,b,alpha = getpixel
-            opposite_color = _opposite_color(r,g,b)
-            print("> picked: ", (r, g, b), "opposite: ", opposite_color)
+            # opposite_color = _opposite_color(r,g,b)
+            # print("> picked: ", (r, g, b), "opposite: ", opposite_color)
             
             canvas.config(bg=_from_rgb((r,g,b)))
-            canvas.itemconfig(text1, fill=_from_rgb(opposite_color))
-            canvas.itemconfig(text2, fill=_from_rgb(opposite_color))
-            canvas.itemconfig(crop_rect, outline=_from_rgb(opposite_color))
+            # canvas.itemconfig(text1, fill=_from_rgb(opposite_color))
+            # canvas.itemconfig(text2, fill=_from_rgb(opposite_color))
+            # canvas.itemconfig(crop_rect, outline=_from_rgb(opposite_color))
 
             global current_padding_color
             current_padding_color = (r,g,b)
@@ -191,8 +189,8 @@ def click(e):
 def right_click(e):
     # reset the custom padding color
     canvas.config(bg="white")
-    canvas.itemconfig(text1, fill="gray")
-    canvas.itemconfig(text2, fill="gray")
+    # canvas.itemconfig(text1, fill="gray")
+    # canvas.itemconfig(text2, fill="gray")
 
     global current_padding_color
     current_padding_color = (0, 0, 0)

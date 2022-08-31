@@ -11,6 +11,7 @@ from eyed3.id3 import ID3_V2_3, ID3_V2_4
 import urllib.request # for downloading od thumbnail        DOCS: https://docs.python.org/3/library/urllib.request.html#module-urllib.request
 
 from thumblogic import thumb_gui_crop
+from smart_metadata import smart_metadata
 
 # you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of the video quickly (hold ctrl to download instead of clipboard)
 
@@ -24,7 +25,7 @@ def download_image(url, file_path, file_name):
     urllib.request.urlretrieve(url, full_path)
 
 def sanitizeText(text):
-    forbidden = [ "<", ">", ":", '"', "\\", "/", "|", "?", "*"]
+    forbidden = [ "<", ">", ":", '"', "\\", "/", "|", "?", "*", "."]
     for letter in forbidden:
         text = text.replace(letter, "_")
     return text
@@ -40,9 +41,9 @@ def user_picks_tag(text, default):
 
 def format_release_date(d, current_id3v):
     if current_id3v == ID3_V2_4:
-        return f"{d[0:4]}-{d[4:6]}-{d[6:8]}"
+        return f"{d['year']}-{d['month']}-{d['day']}"
     else:
-        return d[0:4] # return just the year for id3v2.3
+        return d['year'] # return just the year for id3v2.3
 
 # constants
 ASSET_DIR = "musicdl_assets"
@@ -124,7 +125,7 @@ print()
 
 if "music.youtube.com" in link:
     link = link.replace("music.youtube.com", "youtube.com")
-    print("[info] replaced music.youtube.com url with youtube.com")
+    print("[info] downloading from music.youtube.com with more accurate metadata")
 
 if "&t=" in link:
     link = link[:link.index("&t=")]
@@ -200,30 +201,35 @@ with YoutubeDL(ytd_opts) as ydl:
         song = tagger.load(filepath)
         song.initTag(version=ID3_V2_3) # init tag with v2.3
 
-        # try info["track"], fall back to info["title"]
-        title = user_picks_tag("[Title]", info["track"] if "track" in info else info["title"])
+        # initalize metadata object with smart metadata
+        md = smart_metadata(info)
+
+        title = user_picks_tag("[Title]", md["title"])
         song.tag.title = title
 
-        # try info["creator"], fall back to info["uploader"]
-        artist = user_picks_tag("[Artist]", info["creator"] if "creator" in info else info["uploader"])
+        artist = user_picks_tag("[Artist]", md["artist"])
         song.tag.artist = artist
-        song.tag.album_artist = artist
 
-        # try info["album"], fall back to info["title"]
-        song.tag.album = user_picks_tag("[Album]", info["album"] if "album" in info else info["title"])
-        song.tag.genre = input("[Genre]: > ")
+        album_artist = user_picks_tag("[Album artist]", md["album_artist"])
+        song.tag.album_artist = album_artist
+
+        album = user_picks_tag("[Album]", md["album"])
+        song.tag.album = album
+        
+        genre = input("[Genre]: > ")
+        if genre != "":
+            song.tag.genre = genre
+
+        publisher = user_picks_tag("[Publisher]", md["publisher"])
+        if publisher != "":
+            song.tag.publisher = publisher
         
         # upload date usually corresponds to release date even for music-type videos
-        rel_date = user_picks_tag("[Release Date]", format_release_date(info["upload_date"], CURRENT_ID3V))
+        rel_date = user_picks_tag("[Release Date]", format_release_date(md['year'], CURRENT_ID3V))
         song.tag.release_date = rel_date # this should set TORY when tag version is id3v2.3
         song.tag.original_release_date = rel_date
         song.tag.original_year = rel_date
-
-        # this is the acutal 2.3 year tag lol
-        if CURRENT_ID3V == ID3_V2_3:
-            song.tag.recording_date = rel_date
-        elif CURRENT_ID3V == ID3_V2_4:
-            song.tag.recording_date = rel_date.split("-")[0] 
+        song.tag.recording_date = rel_date # the actual year tag
         
         song.tag.track_num = user_picks_tag("[Track No #]", (1, 1))
 

@@ -58,25 +58,7 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 - you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of an youtube video quickly (hold ctrl to download instead of clipboard)
   
 # screenshots
-![initial](screenshots/initial.png)
-![tagging](screenshots/tagging.png)
-<p align="center">
-
-  ![gui2](screenshots/gui2.png)
-  ![gui3](screenshots/gui3.png) 
-</p>  
-<p align="center">
-
-  ![player1](screenshots/player1.png)
-  ![player2](screenshots/player2.png)
-</p>  
+![combinedscreenshot](screenshots/combscreen.png)
   
-## look the tags are there!
-  
-![tags](screenshots/look%20ma%20tags.png)
-  
-# things for the future (feel free to pr)
-- fix typos in readme lol
-- better/test playlist support
-- make it a global command you can call from the terminal from anywhere
-- fix bugs (pls report in issues)
+## credits
+- [phinger cursors](https://github.com/phisch/phinger-cursors) and [xelu's controller prompts](https://thoseawesomeguys.com/prompts/) used for instructions
