@@ -105,20 +105,18 @@ if os.path.exists(abspath(CWD + "/" + "config.json")):
             CURRENT_ID3V = ID3_V2_4
             print("[info] config set the ID3 version to " + config_obj["id3v"])
 
-    print("[success]: Loaded config file 'config.json'.")
+    #print("[success]: Loaded config file 'config.json'.")
 else:
     print("[warning]: no 'config.json' file detected. Make sure to create one first (check readme)")
     os.system("pause")
     quit()
 
-# ytd_opts["paths"] = {
-#     "home": savedir,
-#     "temp": savedir
-# }
 ytd_opts["paths"] = {"home": savedir}
 
 id, title, concatfn = "", "", ""
 
+print("[info] music.youtube.com song links are recommended for more accurate metadata")
+print()
 link = input("Paste link you want to download: ")
 # link = "https://www.youtube.com/watch?v=YBHxSFI_Q3Q"
 # link = "https://www.youtube.com/watch?v=gLYWLobR248" #jreg
