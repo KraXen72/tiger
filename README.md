@@ -19,7 +19,7 @@ Like there's no album cover, half the tags are missing, the bitrate is questiona
 # features
 - **fast & easy to use**. usually just hit enter a few times to confirm the tags.
 - **download in the highest bitrate youtube provides** (128kbps)
-- **automatically infer most of the tags** from the music video (you can enter the remaining ones)
+- **automatically infer most of the tags** from the music video (you can enter the remaining ones) (see [smart metadata](#smart-metadata))
 - **tkiner GUI** to quickly crop/pad the video thumbnail as an album cover
   - **with Drag & Drop support**: you can drop a new cover into the tkinter window to override it.
 - **smart stripping/parsing of url** (youtube music, youtube, timestamp, playlist)
@@ -48,6 +48,16 @@ if you don't have `ffmpeg` in PATH, point it at a `ffmpeg` binary like so: `D:/c
 only thing left is to run it! `python musicdl.py` from this folder. (idk how to make it a global command *yet*)  
 it is best to go directly to `music.youtube.com` (even if you don't have it paid), click on the 'song' item and paste in the `music.youtube.com/watch?v=...` link. This ensures most metadata get detected = less work for you.
   
+# smart metadata
+- tiger will try to get information to all of these tags for each video: `title`, `artist`, `album_artist`, `album`, `year`, and if possible, `publisher`
+- it does so by first fetching as much information about the video as possible: the title, description, upload date, channel name, youtube music tags, etc.
+- it extracts info from all of these sources, categorizes it and then puts each category in a "battle royale"
+- this means that the item which there is the most of, wins
+- for example, if we have 7 entries for Title, 5 of them are `Ergot`, 1 is `Ergot (Official Audio)` and one is `Ergot feat. Whatever`, `Ergot` wins with the most occurences
+- There are also several fallbacks to solve draws between tags (sorted by importance of source)
+- And also several fallbacks incase the category is empty (like filling the album to Title (Single) )
+- In the end, for each category the winning tag is presented to the user, where you can either accept it or write your alternative which will be used
+  
 # notes
 - this should be used mostly for songs that aren't on spotify, but only on youtube. If the songs is on spotify/deezer, there are tools which can download it in much higher quality. This downloads in 128kbps which is not great but not terrible. If you're okay with 128kbps, feel free to use this.
 - **why python?????** cause most youtube downloading stuff is already written in python
@@ -59,6 +69,6 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
   
 # screenshots
 ![combinedscreenshot](screenshots/combscreen.png)
-  
+
 ## credits
 - [phinger cursors](https://github.com/phisch/phinger-cursors) and [xelu's controller prompts](https://thoseawesomeguys.com/prompts/) used for instructions
