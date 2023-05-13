@@ -70,7 +70,7 @@ it is best to go directly to `music.youtube.com` (even if you don't have it paid
 # screenshots
 ![combinedscreenshot](screenshots/combscreen.png)
 
-## support me
+## support development
 [![Recurring donation via Liberapay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/KraXen72)
 [![One-time donation via ko-fi.com](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/kraxen72)  
 Any donations are highly appreciated! <3
