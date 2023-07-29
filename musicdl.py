@@ -15,7 +15,6 @@ from metadata import smart_metadata
 
 # you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of the video quickly (hold ctrl to download instead of clipboard)
 
-# set up urllib. I honestly could've used urllib3 but cba this example was on stackoverflow
 opener = urllib.request.build_opener()
 opener.addheaders = [("User-agent", "Mozilla/5.0")]
 urllib.request.install_opener(opener)
@@ -32,8 +31,7 @@ def sanitize_text(text):
 
 def user_picks_tag(text, default):
 	default_text = "(enter a value)" if default == "" else default
-	assemble = f"{text}: {default_text} > "
-	q = input(assemble)
+	q = input(f"{text}: {default_text} > ")
 	if q.lower() == "" and default_text != "(enter a value)":
 		return default
 	else:
