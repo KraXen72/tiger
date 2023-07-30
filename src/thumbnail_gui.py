@@ -1,6 +1,8 @@
-import tkinter as tk # for thumbnail gui
-from PIL import ImageTk, Image, ImageOps
+import tkinter as tk  # for thumbnail gui
+
+import constants as c
 import tkinterDnD
+from PIL import Image, ImageOps, ImageTk
 
 thumb_mode = "center"
 margin = 20 # margin from the side
@@ -14,6 +16,7 @@ current_padding_color = (0, 0, 0)
 instruct_image_h = 230
 
 oob_hint = "(out of bounds) click on the image to pick padding color"
+
 
 # utils
 def setup_cropped_image(path):
@@ -74,7 +77,7 @@ def pick_thumb_mode(thumb_fullpath):
 	crop_rect = canvas.create_rectangle(startx, top_offset, startx + rsize, rsize + top_offset, outline="black", width=5)
 
 	# instructions 0.359375 is to get 230 px
-	instruct_pil_img = Image.open("instructions.png")
+	instruct_pil_img = Image.open(c.INSTRUCTINOS_PATH)
 	instruct_imagetk = ImageTk.PhotoImage(instruct_pil_img)
 	canvas.create_image(wsize/2, (wsize + instruct_image_h) - (instruct_image_h / 2), image=instruct_imagetk)
 
@@ -252,7 +255,6 @@ def thumb_gui_crop(thumb_fullpath):
 
 
 if __name__=="__main__":
-	thumb_fullpath = "musicdl_assets\\thumb[YBHxSFI_Q3Q].jpg"
-	thumb_gui_crop(thumb_fullpath)
+	thumb_gui_crop(c.THUMBNAIL_FULLPATH)
 	# mode = thumb_gui(thumb_fullpath)
 	# print("after exit the thing is:", mode)

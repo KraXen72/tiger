@@ -1,17 +1,18 @@
 import json
 import os
+import urllib.request  # for downloading od thumbnail        DOCS: https://docs.python.org/3/library/urllib.request.html#module-urllib.request
 from os.path import abspath
 
-from yt_dlp import YoutubeDL # for downloading the song     DOCS: https://github.com/yt-dlp/yt-dlp
-from tinytag import TinyTag # for checking bitrate          DOCS: https://github.com/devsnd/tinytag
-from ffmpy import FFmpeg # for re-encoding                  DOCS: https://ffmpy.readthedocs.io/en/latest/examples.html
-import eyed3 as tagger # for writing tags to the mp3 file   DOCS: https://eyed3.readthedocs.io/en/latest/index.html
-from eyed3.id3.frames import ImageFrame
+import eyed3 as tagger  # for writing tags to the mp3 file   DOCS: https://eyed3.readthedocs.io/en/latest/index.html
 from eyed3.id3 import ID3_V2_3, ID3_V2_4
-import urllib.request # for downloading od thumbnail        DOCS: https://docs.python.org/3/library/urllib.request.html#module-urllib.request
+from eyed3.id3.frames import ImageFrame
+from ffmpy import FFmpeg  # for re-encoding                  DOCS: https://ffmpy.readthedocs.io/en/latest/examples.html
+from tinytag import TinyTag  # for checking bitrate          DOCS: https://github.com/devsnd/tinytag
+from yt_dlp import YoutubeDL  # for downloading the song     DOCS: https://github.com/yt-dlp/yt-dlp
 
-from thumbnail_gui import thumb_gui_crop
-from metadata import smart_metadata
+import src.constants as c
+from src.metadata import smart_metadata
+from src.thumbnail_gui import thumb_gui_crop
 
 # you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of the video quickly (hold ctrl to download instead of clipboard)
 
@@ -24,6 +25,7 @@ def download_image(url, file_path, file_name):
 	urllib.request.urlretrieve(url, full_path)
 
 def sanitize_text(text):
+	# possibly rewrite as regex?
 	forbidden = [ "<", ">", ":", '"', "\\", "/", "|", "?", "*", "."]
 	for letter in forbidden:
 		text = text.replace(letter, "_")
@@ -45,12 +47,12 @@ def format_release_date(d, current_id3v):
 	
 # constants
 ASSET_DIR = "musicdl_assets"
-CWD = abspath(os.getcwd())
-CURRENT_ID3V = ID3_V2_3
 
 savedir = "D:/music/#deezloader downloads"
 save_json_dump = True
 skip_reencode = True # you can skip reencode if you don't have lame installed
+
+current_id3v = ID3_V2_3
 
 ytd_opts = {
 	#"ffmpeg_location": "D:/coding/yt-dlp/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe",
@@ -80,7 +82,7 @@ print("""
 print("Tiger: youtube music downloader for lazy perfectionists.")
 print()
 
-if os.path.exists(abspath(CWD + "/" + "config.json")):
+if os.path.exists(c.CONFIG_PATH):
 	f = open("config.json", "r", encoding="utf8")
 	config_obj = json.load(f)
 	f.close()
@@ -99,10 +101,10 @@ if os.path.exists(abspath(CWD + "/" + "config.json")):
 
 	if "id3v" in config_obj:
 		if config_obj["id3v"] == "2.3":
-			CURRENT_ID3V = ID3_V2_3
+			current_id3v = ID3_V2_3
 			print("[info] config set the ID3 version to " + config_obj["id3v"])
 		if config_obj["id3v"] == "2.4":
-			CURRENT_ID3V = ID3_V2_4
+			current_id3v = ID3_V2_4
 			print("[info] config set the ID3 version to " + config_obj["id3v"])
 
 	#print("[success]: Loaded config file 'config.json'.")
@@ -154,6 +156,7 @@ with YoutubeDL(ytd_opts) as ydl:
 	info = ydl.sanitize_info(info)
 
 	if save_json_dump:
+		# FIXME redo paths with constants, abspath & join
 		f = open(ASSET_DIR + "/" +"jsondump.json", "w", encoding="utf8")
 		json.dump(info, f, indent=4, ensure_ascii=False)
 		f.close()
@@ -241,7 +244,7 @@ with YoutubeDL(ytd_opts) as ydl:
 			song.tag.publisher = publisher
 
 		# upload date usually corresponds to release date even for music-type videos
-		rel_date = user_picks_tag("[Release Date]", format_release_date(md["year"], CURRENT_ID3V))
+		rel_date = user_picks_tag("[Release Date]", format_release_date(md["year"], current_id3v))
 		song.tag.release_date = rel_date # this should set TORY when tag version is id3v2.3
 		song.tag.original_release_date = rel_date
 		song.tag.original_year = rel_date
@@ -253,7 +256,7 @@ with YoutubeDL(ytd_opts) as ydl:
 		# God bless https://stackoverflow.com/questions/38510694/how-to-add-album-art-to-mp3-file-using-python-3#39316853
 		song.tag.images.set(ImageFrame.FRONT_COVER, open(ASSET_DIR + "/" + "out.jpg","rb").read(), "image/jpeg")
 
-		song.tag.save(version=CURRENT_ID3V) # save tag to song. id3v2.3 is safer
+		song.tag.save(version=current_id3v) # save tag to song. id3v2.3 is safer
 		os.rename(filepath, final_filename_path) # use abspath here to respect savedir
 
 		print("> Done!")

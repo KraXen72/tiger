@@ -1,9 +1,12 @@
 import json
 from collections import Counter
 
+import constants as c
+
 # this file parses the extract_info object provided by yt_dlp for informations
 # grabs as much info as it can from all over the place: yt music tags, channel name, video title, description and other fields
 # puts all of these strings into an array, count how many times each value occurs and the one that occurs most is the most likely result
+
 
 # TODO extract genre? soundccloud has it.
 md_template = {
@@ -89,6 +92,7 @@ def get_most_likely_tag(list_of_keys, obj, additional_values = []):
 # site extractors
 def youtube_extractor(info):
 	add_values = md_template.copy()
+
 	# video title is: Artist - Title format
 	if info["title"].count(" - ") == 1:
 		add_values = dash_split(info["title"], add_values)
@@ -195,7 +199,7 @@ def smart_metadata(info):
 	return md
 
 if __name__=="__main__":
-	f = open("musicdl_assets/jsondump.json", "r", encoding="utf8")
+	f = open(c.JSONDUMP_PATH, "r", encoding="utf8")
 	obj = json.load(f)
 	f.close()
 
