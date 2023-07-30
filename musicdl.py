@@ -20,9 +20,8 @@ opener = urllib.request.build_opener()
 opener.addheaders = [("User-agent", "Mozilla/5.0")]
 urllib.request.install_opener(opener)
 
-def download_image(url, file_path, file_name):
-	full_path = file_path + file_name
-	urllib.request.urlretrieve(url, full_path)
+def download_image(url, result_path):
+	urllib.request.urlretrieve(url, result_path)
 
 def sanitize_text(text):
 	# possibly rewrite as regex?
@@ -122,15 +121,6 @@ id, title, concatfn = "", "", ""
 print("[info] music.youtube.com song links are recommended for more accurate metadata")
 print()
 link = input("Paste link you want to download: ")
-with YoutubeDL(ytd_opts) as ydl:
-	prefetch_info = ydl.extract_info(link, download=False, )
-	if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
-		print('[warning] link you entered contains "(Official" and "Video)"')
-		print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
-		confirm = input("type Y/y/Yes to continue, anything else to abort: ")
-		if confirm.lower() not in ["y", "yes"]:
-			quit()
-print()
 
 if "music.youtube.com" in link:
 	link = link.replace("music.youtube.com", "youtube.com")
@@ -149,6 +139,15 @@ if "&list=" in link:
 		link = link[:link.index("&list=")] #slice off the index part
 		print("[info] downloading song only")
 
+with YoutubeDL(ytd_opts) as ydl:
+	prefetch_info = ydl.extract_info(link, download=False, )
+	if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
+		print('[warning] link you entered contains "(Official" and "Video)"')
+		print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
+		confirm = input("type Y/y/Yes to continue, anything else to abort: ")
+		if confirm.lower() not in ["y", "yes"]:
+			quit()
+print()
 
 with YoutubeDL(ytd_opts) as ydl:
 	# 1: DOWNLOAD SONG(S)
@@ -156,8 +155,7 @@ with YoutubeDL(ytd_opts) as ydl:
 	info = ydl.sanitize_info(info)
 
 	if save_json_dump:
-		# FIXME redo paths with constants, abspath & join
-		f = open(ASSET_DIR + "/" +"jsondump.json", "w", encoding="utf8")
+		f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
 		json.dump(info, f, indent=4, ensure_ascii=False)
 		f.close()
 
@@ -190,17 +188,15 @@ with YoutubeDL(ytd_opts) as ydl:
 
 		# 3. SELECT THUMBNAIL
 		# thumb_or_frame = input("> Album Art: Use frame from the video or Thumbnail? type f = frame, anything else (including enter) = thumb")
-
-		thumb_fullpath = ASSET_DIR + "/" + f"thumb[{id}].jpg"
+		
+		thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{id}].jpg"))
 		if os.path.exists(thumb_fullpath) is False:
 			thumb_url = info["thumbnail"].replace("/vi_webp/", "/vi/").replace(".webp", ".jpg")
-			download_image(thumb_url, ASSET_DIR + "/", f"thumb[{id}].jpg")
+			download_image(thumb_url, thumb_fullpath)
 
 		# 4. CALL GUI TO CROP THUMBNAIL
-		thumb_fn = f"thumb[{id}].jpg"
-		thumb_path = ASSET_DIR + "/" + thumb_fn
 		print("Go to the new Tkinter window to select your thumbnail")
-		thumb_gui_crop(thumb_fullpath= thumb_path)
+		thumb_gui_crop(thumb_fullpath=thumb_fullpath)
 
 		# 5. tag the mp3
 		# youtube has some extra fields for music-type videos, so we try to offer those, but fallback to the next best thing
@@ -221,7 +217,7 @@ with YoutubeDL(ytd_opts) as ydl:
 		artist = user_picks_tag("[Artist]", md["artist"])
 		song.tag.artist = artist
 
-		final_filename_path = abspath(savedir + "/" + f"{sanitize_text(artist)} - {sanitize_text(title)}.mp3")
+		final_filename_path = abspath(os.path.join(savedir, f"{sanitize_text(artist)} - {sanitize_text(title)}.mp3"))
 		if os.path.exists(final_filename_path):
 			print("The songs you're downloading already exists.")
 			print("Continue with tagging & overwrite file? Type A to abort, anything else to continue.")

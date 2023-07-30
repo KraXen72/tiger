@@ -1,7 +1,7 @@
 import json
 from collections import Counter
 
-import constants as c
+import src.constants as c
 
 # this file parses the extract_info object provided by yt_dlp for informations
 # grabs as much info as it can from all over the place: yt music tags, channel name, video title, description and other fields
@@ -49,9 +49,9 @@ def get_most_likely_tag(list_of_keys, obj, additional_values = []):
 
 	# stringify the dict into json so Counter doesen't freak out
 	for i, tag in enumerate(tags):
-		if isinstance(tag, {}):
+		if isinstance(tag, dict):
 			tags[i] = json.dumps(tag, separators=(",", ":"))
-		if isinstance(tag, 1):
+		if isinstance(tag, int):
 			tags[i] = str(tag)
 
 	# filter out none and 'null'
@@ -84,7 +84,7 @@ def get_most_likely_tag(list_of_keys, obj, additional_values = []):
 		# print("top 2 tags have the same count:", dehashed_counts)
 
 		# for example if years look like this: [('2017', 1), ({'year': '2017', 'month': '10', 'day': '19'}, 1)]
-		if isinstance(top_result, str) and isinstance(second_result, {}):
+		if isinstance(top_result, str) and isinstance(second_result, dict):
 			top_result, second_result = second_result, top_result
 
 	return top_result, cleaned_tags

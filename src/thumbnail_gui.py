@@ -1,8 +1,9 @@
 import tkinter as tk  # for thumbnail gui
 
-import constants as c
 import tkinterDnD
 from PIL import Image, ImageOps, ImageTk
+
+import src.constants as c
 
 thumb_mode = "center"
 margin = 20 # margin from the side
