@@ -6,8 +6,6 @@ from os.path import abspath
 import eyed3 as tagger  # for writing tags to the mp3 file   DOCS: https://eyed3.readthedocs.io/en/latest/index.html
 from eyed3.id3 import ID3_V2_3, ID3_V2_4
 from eyed3.id3.frames import ImageFrame
-from ffmpy import FFmpeg  # for re-encoding                  DOCS: https://ffmpy.readthedocs.io/en/latest/examples.html
-from tinytag import TinyTag  # for checking bitrate          DOCS: https://github.com/devsnd/tinytag
 from yt_dlp import YoutubeDL  # for downloading the song     DOCS: https://github.com/yt-dlp/yt-dlp
 
 import src.constants as c
@@ -49,9 +47,10 @@ ASSET_DIR = "musicdl_assets"
 
 savedir = "D:/music/#deezloader downloads"
 save_json_dump = True
-skip_reencode = True # you can skip reencode if you don't have lame installed
 
-current_id3v = ID3_V2_3
+# TODO the word flag might not be the best. possibly rename? it's more like a global setting.
+flag_current_id3v = ID3_V2_3
+flag_current_format = "mp3"
 
 ytd_opts = {
 	#"ffmpeg_location": "D:/coding/yt-dlp/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe",
@@ -60,8 +59,8 @@ ytd_opts = {
 	"format": "mp3/bestaudio/best",
 	# ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
 	"postprocessors": [{  # Extract audio using ffmpeg
-	"key": "FFmpegExtractAudio",
-	"preferredcodec": "mp3",
+		"key": "FFmpegExtractAudio",
+		"preferredcodec": "mp3",
 	}],
 	"test": False
 }
@@ -89,10 +88,13 @@ if os.path.exists(c.CONFIG_PATH):
 	# apply config options
 	if "savedir" in config_obj:
 		savedir = config_obj["savedir"]
+	if "audio_format" in config_obj and config_obj["audio_format"] == "opus":
+		flag_current_format = "opus"
+		ytd_opts["format"] = 'bestaudio[format="opus"]/bestaudio/best'
+		ytd_opts["postprocessors"][0] = { "key": "FFmpegExtractAudio" }
+	print(f"[info] downloading in format {flag_current_format}")
 	if "save_json_dump" in config_obj:
 		save_json_dump = config_obj["save_json_dump"]
-	if "skip_reencode" in config_obj:
-		skip_reencode = config_obj["skip_reencode"]
 	if "ffmpeg_location" in config_obj:
 		ytd_opts["ffmpeg_location"] = config_obj["ffmpeg_location"]
 	else:
@@ -100,10 +102,10 @@ if os.path.exists(c.CONFIG_PATH):
 
 	if "id3v" in config_obj:
 		if config_obj["id3v"] == "2.3":
-			current_id3v = ID3_V2_3
+			flag_current_id3v = ID3_V2_3
 			print("[info] config set the ID3 version to " + config_obj["id3v"])
 		if config_obj["id3v"] == "2.4":
-			current_id3v = ID3_V2_4
+			flag_current_id3v = ID3_V2_4
 			print("[info] config set the ID3 version to " + config_obj["id3v"])
 
 	#print("[success]: Loaded config file 'config.json'.")
@@ -140,7 +142,12 @@ if "&list=" in link:
 		print("[info] downloading song only")
 
 with YoutubeDL(ytd_opts) as ydl:
-	prefetch_info = ydl.extract_info(link, download=False, )
+	prefetch_info = ydl.extract_info(link, download=False)
+	if save_json_dump:
+		f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
+		json.dump(ydl.sanitize_info(prefetch_info), f, indent=4, ensure_ascii=False)
+		f.close()
+
 	if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
 		print('[warning] link you entered contains "(Official" and "Video)"')
 		print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
@@ -152,41 +159,15 @@ print()
 with YoutubeDL(ytd_opts) as ydl:
 	# 1: DOWNLOAD SONG(S)
 	info = ydl.extract_info(link, download=True)
-	info = ydl.sanitize_info(info)
-
-	if save_json_dump:
-		f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
-		json.dump(info, f, indent=4, ensure_ascii=False)
-		f.close()
 
 	id, title = info["id"], info["title"]
 	concatfn = f"{title} [{id}].mp3"
 	newconcatfn = f"{title} [{id}] [128k].mp3"
 
 	for item in info["requested_downloads"]:
-		# 2. RE-ENCODE SONGS INTO 128 / 320 (if neccesary)
 		filepath = item["filepath"]
-		desired_bitrate = 128.00
 
-		bitrate = float(TinyTag.get(filepath).bitrate)
-		if bitrate > desired_bitrate:
-			desired_bitrate = 320.00
-
-		if skip_reencode is False:
-			inp_dir, out_dir = {}, {}
-			inp_dir[filepath] = None
-			out_dir[newconcatfn] = f"-hide_banner -c:a libmp3lame -b:a {desired_bitrate}k -y"
-
-			ff = FFmpeg(executable=ytd_opts["ffmpeg_location"], inputs=inp_dir, outputs = out_dir)
-			# print(ff.cmd)
-			print(f"> re-encoding to {desired_bitrate}k")
-			ff.run(stdout=None)
-			print("> re-encoding finished")
-
-			os.remove(filepath)
-			os.rename(filepath.replace(".mp3", " [128k].mp3"), filepath)
-
-		# 3. SELECT THUMBNAIL
+		# 2. SELECT THUMBNAIL
 		# thumb_or_frame = input("> Album Art: Use frame from the video or Thumbnail? type f = frame, anything else (including enter) = thumb")
 		
 		thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{id}].jpg"))
@@ -194,11 +175,11 @@ with YoutubeDL(ytd_opts) as ydl:
 			thumb_url = info["thumbnail"].replace("/vi_webp/", "/vi/").replace(".webp", ".jpg")
 			download_image(thumb_url, thumb_fullpath)
 
-		# 4. CALL GUI TO CROP THUMBNAIL
+		# 3. CALL GUI TO CROP THUMBNAIL
 		print("Go to the new Tkinter window to select your thumbnail")
 		thumb_gui_crop(thumb_fullpath=thumb_fullpath)
 
-		# 5. tag the mp3
+		# 4. tag the file
 		# youtube has some extra fields for music-type videos, so we try to offer those, but fallback to the next best thing
 		print("Tagging the song:")
 		print("You will be asked about some tags, most of them have a default value")
@@ -240,7 +221,7 @@ with YoutubeDL(ytd_opts) as ydl:
 			song.tag.publisher = publisher
 
 		# upload date usually corresponds to release date even for music-type videos
-		rel_date = user_picks_tag("[Release Date]", format_release_date(md["year"], current_id3v))
+		rel_date = user_picks_tag("[Release Date]", format_release_date(md["year"], flag_current_id3v))
 		song.tag.release_date = rel_date # this should set TORY when tag version is id3v2.3
 		song.tag.original_release_date = rel_date
 		song.tag.original_year = rel_date
@@ -252,7 +233,7 @@ with YoutubeDL(ytd_opts) as ydl:
 		# God bless https://stackoverflow.com/questions/38510694/how-to-add-album-art-to-mp3-file-using-python-3#39316853
 		song.tag.images.set(ImageFrame.FRONT_COVER, open(ASSET_DIR + "/" + "out.jpg","rb").read(), "image/jpeg")
 
-		song.tag.save(version=current_id3v) # save tag to song. id3v2.3 is safer
+		song.tag.save(version=flag_current_id3v) # save tag to song. id3v2.3 is safer
 		os.rename(filepath, final_filename_path) # use abspath here to respect savedir
 
 		print("> Done!")

@@ -1,7 +1,6 @@
 import json
+import os
 from collections import Counter
-
-import src.constants as c
 
 # this file parses the extract_info object provided by yt_dlp for informations
 # grabs as much info as it can from all over the place: yt music tags, channel name, video title, description and other fields
@@ -154,34 +153,50 @@ def smart_metadata(info):
 	# publisher (record label)
 
 	md = {}
-	md_template.copy() # keys to check from the 'info object'. site specific.
+	md_keys = md_template.copy() # keys to check from the 'info object'. site specific.
 	add_values = md_template.copy()
 	others = md_template.copy()
 
 	domain = info["webpage_url_domain"]
+	# TODO extract this
 	match domain:
 		case "soundcloud.com":
+			md_keys = {
+				"title": ["title", "fulltitle"],
+				"artist": ["uploader"],
+				"album_artist": ["uploader"],
+				"album": [], # soundcloud doesen't expose album metadata?
+				"year": ["upload_date"],
+				"publisher": []
+			}
 			add_values = soundcloud_extractor(info)
 		case _:
 			if domain != "youtube.com":
 				print("[warning] unsupported domain:", domain, "using youtube extractor as fallback.")
+			md_keys = {
+				"title": ["title", "track", "alt_title"],
+				"artist": ["artist", "channel", "creator"],
+				"album_artist": [],
+				"album": ["album"],
+				"year": ["release_date", "release_year"],
+				"publisher": []
+			}
 			add_values = youtube_extractor(info)
-			# TODO finish this
 
 	# pass all the vales to get_most_likely_tag
 	# which counts how many times each value occurs and returns the value that occurs the most
 	# also dumps all the other possibilities into the other dictionary
 
-	md["title"], others["title"] =                  get_most_likely_tag(["title", "track", "alt_title"], info, add_values["title"])
-	md["artist"], others["artist"] =                get_most_likely_tag(["artist", "channel", "creator"], info, add_values["artist"])
-	md["album_artist"], others["album_artist"] =    get_most_likely_tag([], info, [md["artist"]] + add_values["album_artist"])
+	md["title"], others["title"] =                  get_most_likely_tag(md_keys["title"], info, add_values["title"])
+	md["artist"], others["artist"] =                get_most_likely_tag(md_keys["artist"], info, add_values["artist"])
+	md["album_artist"], others["album_artist"] =    get_most_likely_tag(md_keys["album_artist"], info, [md["artist"]] + add_values["album_artist"])
 
 	# fallback: title (Single) => album, only if there is no album yet
 	if ("album" not in info) and len(add_values["album"]) == 0:
 		add_values["album"].append(f"{md['title']} (Single)")
 
-	md["album"], others["album"] =                  get_most_likely_tag(["album"], info, add_values["album"])
-	md["year"], others["year"] =                    get_most_likely_tag(["release_date", "release_year"], info, add_values["year"])
+	md["album"], others["album"] =                  get_most_likely_tag(md_keys["album"], info, add_values["album"])
+	md["year"], others["year"] =                    get_most_likely_tag(md_keys["year"], info, add_values["year"])
 
 	if type(md["year"]) is str:
 		md["year"] = { "year": md["year"] }
@@ -189,7 +204,7 @@ def smart_metadata(info):
 	if len(add_values["publisher"]) == 0: # publishe from album_artist, only if there is no publisher yet
 		add_values["publisher"].append(md["album_artist"])
 
-	md["publisher"], others["publisher"] =          get_most_likely_tag([], info, add_values["publisher"])
+	md["publisher"], others["publisher"] =          get_most_likely_tag(md_keys["publisher"], info, add_values["publisher"])
 
 	# fix ups
 	if md["publisher"] == f"{md['year']['year']} {md['artist']}":
@@ -199,7 +214,7 @@ def smart_metadata(info):
 	return md
 
 if __name__=="__main__":
-	f = open(c.JSONDUMP_PATH, "r", encoding="utf8")
+	f = open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "musicdl_assets", "jsondump.json")), "r", encoding="utf8")
 	obj = json.load(f)
 	f.close()
 

@@ -34,16 +34,16 @@ create a `config.json` file with these options:
 {
     "savedir": "whatever your save dir for music is (absolute path is best)",
     "save_json_dump": false,
-    "skip_reencode": true,
     "ffmpeg_location" : "not neccesary if ffmpeg is installed globally / in PATH",
-    "id3v": "either '2.3' or '2.4' (not required)"
+    "id3v": "either '2.3' or '2.4' (not required)",
+	"audio_format": "either 'opus' or 'mp3' (default)",
 }
 ```
 - **save_json_dump** is useful for debugging or if you want extra info about the song in json  
-- **skip_reencode** can be kept on true by default. `yt-dlp` does a pretty good job of downloading in exactly *128kb/s*, but if you want to make sure its *128kb/s*, you can enable this to have `ffmpeg` re-encode it. (requires the `LAME` mp3 encoder be present on system)  
 - **ffmpeg_location** is better if defined on windows unless you're sure you have `ffmpeg` in PATH.  
 if you don't have `ffmpeg` in PATH, point it at a `ffmpeg` binary like so: `D:/coding/yt-dlp/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe`  
 - **id3v** is the ID3 version. 2.3 has better support across music players, but dates are only kept as year, not full date. If you care about the dates, set this to 2.4, otherwise it's best to keep at 2.3
+- **audio_format**: `mp3` converts the file to 128kbps `mp3`. `opus` downloads the highest quality audio (even in container) and extracts the `.opus` file out of it. Most likely will be better quality than mp3, but not all devices can play `.opus` files.
     
 only thing left is to run it! `python musicdl.py` from this folder. (idk how to make it a global command *yet*)  
 it is best to go directly to `music.youtube.com` (even if you don't have it paid), click on the 'song' item and paste in the `music.youtube.com/watch?v=...` link. This ensures most metadata get detected = less work for you.
