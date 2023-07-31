@@ -51,6 +51,7 @@ save_json_dump = True
 # TODO the word flag might not be the best. possibly rename? it's more like a global setting.
 flag_current_id3v = ID3_V2_3
 flag_current_format = "mp3"
+flag_downloading_playlist = False
 
 ytd_opts = {
 	#"ffmpeg_location": "D:/coding/yt-dlp/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe",
@@ -133,27 +134,29 @@ if "&t=" in link:
 	print("[info] stripped timestamp from url")
 
 if "&list=" in link:
-	print("[Download song or playlist?]")
-	opt = input("type 'p' for playlist, anything else (even enter) for song only:")
-	if opt == "p":
+	print("Download song or playlist?")
+	confirm = input("type 'p' for playlist, anything else for song only:")
+	if confirm.lower() == "p":
 		print("[info] downloading whole playlist")
+		flag_downloading_playlist = True
 	else:
 		link = link[:link.index("&list=")] #slice off the index part
 		print("[info] downloading song only")
 
 with YoutubeDL(ytd_opts) as ydl:
-	prefetch_info = ydl.extract_info(link, download=False)
-	if save_json_dump:
-		f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
-		json.dump(ydl.sanitize_info(prefetch_info), f, indent=4, ensure_ascii=False)
-		f.close()
+	if not flag_downloading_playlist:
+		prefetch_info = ydl.extract_info(link, download=False)
+		if save_json_dump:
+			f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
+			json.dump(ydl.sanitize_info(prefetch_info), f, indent=4, ensure_ascii=False)
+			f.close()
 
-	if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
-		print('[warning] link you entered contains "(Official" and "Video)"')
-		print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
-		confirm = input("type Y/y/Yes to continue, anything else to abort: ")
-		if confirm.lower() not in ["y", "yes"]:
-			quit()
+		if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
+			print('[warning] link you entered contains "(Official" and "Video)"')
+			print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
+			confirm = input("type Y/y/Yes to continue, anything else to abort: ")
+			if confirm.lower() not in ["y", "yes"]:
+				quit()
 print()
 
 with YoutubeDL(ytd_opts) as ydl:
