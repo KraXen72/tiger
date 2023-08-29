@@ -1,0 +1,8 @@
+config.json
+musicdl_assets/*
+!musicdl_assets/thumb[YBHxSFI_Q3Q].jpg
+!musicdl_assets/thumb[CaiE3L8SCxo].jpg
+!musicdl_assets/out.jpg
+tiger/__pycache__/*
+tiger/__pycache__
+*.mp3

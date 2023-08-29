@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "tiger"
+version = "2.0.0"
+description = "youtube music downloader with advanced metadata extraction"
+authors = ["KraXen72"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+yt-dlp = "^2023.7.6"
+pillow = "^10.0.0"
+python-tkdnd = "^0.2.1"
+tinytag = "^1.9.0"
+ffmpy = "^0.3.1"
+eyed3 = "^0.9.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+tiger = 'tiger.musicdl:main'
