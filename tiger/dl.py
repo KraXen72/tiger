@@ -2,12 +2,13 @@ import json
 import os
 from os.path import abspath
 
-import eyed3 as tagger  # for writing tags to the mp3 file   DOCS: https://eyed3.readthedocs.io/en/latest/index.html
+import eyed3 as tagger
 from eyed3.id3 import ID3_V2_3, ID3_V2_4
 from eyed3.id3.frames import ImageFrame
-from yt_dlp import YoutubeDL  # for downloading the song     DOCS: https://github.com/yt-dlp/yt-dlp
+from yt_dlp import YoutubeDL
 
 import tiger.constants as c
+from tiger.logo import print_logo
 from tiger.metadata import smart_metadata
 from tiger.thumbnail_gui import thumb_gui_crop
 from tiger.utils import download_image, format_release_date, sanitize_text, user_picks_tag
@@ -37,18 +38,7 @@ def main():
 		"test": False
 	}
 
-	# TODO move this to a file so CTRL + U + ruff doesen't break it
-	print("""
-	▄▄▄█████▓  ██▓ ▄████  ▓█████ ██▀███  
-	▓  ██▒ ▓▒▒▓██▒ ██▒ ▀█ ▓█   ▀▓██ ▒ ██▒
-	▒ ▓██░ ▒░▒▒██▒▒██░▄▄▄ ▒███  ▓██ ░▄█ ▒
-	░ ▓██▓ ░ ░░██░░▓█  ██ ▒▓█  ▄▒██▀▀█▄  
-	▒██▒ ░ ░░██░▒▓███▀▒▒░▒████░██▓ ▒██▒
-	▒ ░░    ░▓  ░▒   ▒ ░░░ ▒░ ░ ▒▓ ░▒▓░
-		░    ░ ▒ ░ ░   ░ ░ ░ ░    ░▒ ░ ▒ 
-	░ ░    ░ ▒ ░ ░   ░     ░    ░░   ░ 
-			░       ░ ░   ░     ░     
-	""")
+	print_logo()
 	print("Tiger: youtube music downloader for lazy perfectionists.")
 	print()
 
@@ -212,4 +202,4 @@ def main():
 			os.system("pause")
 
 if __name__ == "__main__":
-    main()
+	main()
