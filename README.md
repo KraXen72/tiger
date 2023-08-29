@@ -1,4 +1,4 @@
-# tiger (undergoing rewrite)
+# tiger v2 (undergoing rewrite)
 ```
   
 ▄▄▄█████▓  ██▓ ▄████  ▓█████ ██▀███  
@@ -25,17 +25,17 @@ Like there's no album cover, half the tags are missing, the bitrate is questiona
 - **smart stripping/parsing of url** (youtube music, youtube, timestamp, playlist)
 - **option to auto transcode** to 128kb/s (to ensure consistency) or 320kb/s (if you're a madlad, you can change it in the code lol)
   
-# install & usage (downloading music)
+## install & usage (downloading music)
 - currently, the poject is undergoing a rewrite. functionality is not guaranteed!
 - once finished, there will most likely be a package published to pip for easy usage
 
-# install & usage: development(for vs code)
+## install & usage: development(for vs code)
 - install [poetry](https://python-poetry.org) package manager
 - run `poetry config virtualenvs.in-project true`. 
   - This step is optional if you 1) don't need vscode's launch hotkeys or 2) don't mind adding the python interpreter path in your editor manually
 - in this repo, run `poetry install`
 - change vs code's python interpreter to the one in the project's `.venv` (run `Python: Select interpreter` from the Command Palette) 
-- run `poetry run python tiger` or use vscode debugger lanuch commands (F5 / Ctrl+F5)
+- run `poetry run python tiger` or use vscode debugger launch commands (F5 / Ctrl+F5)
 
 # configuration
 create a `config.json` file with these options:
