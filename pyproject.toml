@@ -17,6 +17,3 @@ eyed3 = "^0.9.7"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-tiger = 'tiger.musicdl:main'

@@ -1,4 +1,4 @@
-# tiger 
+# tiger (undergoing rewrite)
 ```
   
 ▄▄▄█████▓  ██▓ ▄████  ▓█████ ██▀███  
@@ -7,9 +7,9 @@
 ░ ▓██▓ ░ ░░██░░▓█  ██ ▒▓█  ▄▒██▀▀█▄  
   ▒██▒ ░ ░░██░▒▓███▀▒▒░▒████░██▓ ▒██▒
   ▒ ░░    ░▓  ░▒   ▒ ░░░ ▒░ ░ ▒▓ ░▒▓░
-    ░    ░ ▒ ░ ░   ░ ░ ░ ░    ░▒ ░ ▒ 
+	░    ░ ▒ ░ ░   ░ ░ ░ ░    ░▒ ░ ▒ 
   ░ ░    ░ ▒ ░ ░   ░     ░    ░░   ░ 
-           ░       ░ ░   ░     ░     
+		   ░       ░ ░   ░     ░     
 ```
 > youtube music downloader for lazy perfectionists. 
 
@@ -25,17 +25,26 @@ Like there's no album cover, half the tags are missing, the bitrate is questiona
 - **smart stripping/parsing of url** (youtube music, youtube, timestamp, playlist)
 - **option to auto transcode** to 128kb/s (to ensure consistency) or 320kb/s (if you're a madlad, you can change it in the code lol)
   
-# install & usage
-```
-$ pip install -r requirements.txt
-```
+# install & usage (downloading music)
+- currently, the poject is undergoing a rewrite. functionality is not guaranteed!
+- once finished, there will most likely be a package published to pip for easy usage
+
+# install & usage: development(for vs code)
+- install [poetry](https://python-poetry.org) package manager
+- run `poetry config virtualenvs.in-project true`. 
+  - This step is optional if you 1) don't need vscode's launch hotkeys or 2) don't mind adding the python interpreter path in your editor manually
+- in this repo, run `poetry install`
+- change vs code's python interpreter to the one in the project's `.venv` (run `Python: Select interpreter` from the Command Palette) 
+- run `poetry run python tiger` or use vscode debugger lanuch commands (F5 / Ctrl+F5)
+
+# configuration
 create a `config.json` file with these options:
 ```json
 {
-    "savedir": "whatever your save dir for music is (absolute path is best)",
-    "save_json_dump": false,
-    "ffmpeg_location" : "not neccesary if ffmpeg is installed globally / in PATH",
-    "id3v": "either '2.3' or '2.4' (not required)",
+	"savedir": "whatever your save dir for music is (absolute path is best)",
+	"save_json_dump": false,
+	"ffmpeg_location" : "not neccesary if ffmpeg is installed globally / in PATH",
+	"id3v": "either '2.3' or '2.4' (not required)",
 	"audio_format": "either 'opus' or 'mp3' (default)",
 }
 ```
@@ -44,7 +53,7 @@ create a `config.json` file with these options:
 if you don't have `ffmpeg` in PATH, point it at a `ffmpeg` binary like so: `D:/coding/yt-dlp/ffmpeg-master-latest-win64-gpl-shared/bin/ffmpeg.exe`  
 - **id3v** is the ID3 version. 2.3 has better support across music players, but dates are only kept as year, not full date. If you care about the dates, set this to 2.4, otherwise it's best to keep at 2.3
 - **audio_format**: `mp3` converts the file to 128kbps `mp3`. `opus` downloads the highest quality audio (even in container) and extracts the `.opus` file out of it. Most likely will be better quality than mp3, but not all devices can play `.opus` files.
-    
+	
 only thing left is to run it! `python musicdl.py` from this folder. (idk how to make it a global command *yet*)  
 it is best to go directly to `music.youtube.com` (even if you don't have it paid), click on the 'song' item and paste in the `music.youtube.com/watch?v=...` link. This ensures most metadata get detected = less work for you.
   

@@ -6,3 +6,5 @@ musicdl_assets/*
 tiger/__pycache__/*
 tiger/__pycache__
 *.mp3
+.venv
+.venv/*
