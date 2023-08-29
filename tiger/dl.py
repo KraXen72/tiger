@@ -15,9 +15,9 @@ from tiger.utils import download_image, format_release_date, sanitize_text, user
 
 # you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of the video quickly (hold ctrl to download instead of clipboard)
 
-def main():
-	ASSET_DIR = "musicdl_assets"
+ASSET_DIR = "musicdl_assets"
 
+def main():
 	savedir = "D:/music/#deezloader downloads"
 	save_json_dump = True
 
@@ -78,7 +78,7 @@ def main():
 
 	ytd_opts["paths"] = {"home": savedir}
 
-	id, title, concatfn = "", "", ""
+	_id, title = "", ""
 	# link = "https://www.youtube.com/watch?v=YBHxSFI_Q3Q"
 	# link = "https://www.youtube.com/watch?v=gLYWLobR248" #jreg
 
@@ -124,7 +124,7 @@ def main():
 		# 1: DOWNLOAD SONG(S)
 		info = ydl.extract_info(link, download=True)
 
-		id, title = info["id"], info["title"]
+		_id, title = info["id"], info["title"]
 
 		for item in info["requested_downloads"]:
 			filepath = item["filepath"]
@@ -132,7 +132,7 @@ def main():
 			# 2. SELECT THUMBNAIL
 			# thumb_or_frame = input("> Album Art: Use frame from the video or Thumbnail? type f = frame, anything else (including enter) = thumb")
 			
-			thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{id}].jpg"))
+			thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{_id}].jpg"))
 			if os.path.exists(thumb_fullpath) is False:
 				thumb_url = info["thumbnail"].replace("/vi_webp/", "/vi/").replace(".webp", ".jpg")
 				download_image(thumb_url, thumb_fullpath)
