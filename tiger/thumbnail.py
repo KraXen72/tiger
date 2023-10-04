@@ -1,14 +1,16 @@
+import os
 import tkinter as tk  # for thumbnail gui
 
 import tkinterDnD
 from PIL import Image, ImageOps, ImageTk
 
 import tiger.constants as c
+from tiger.utils import download_image
 
 thumb_mode = "center"
-margin = 20 # margin from the side
-wsize = 640 # window size
-wbox = wsize - (2 * margin) # e.g. 600
+margin = 20  # margin from the side
+wsize = 640  # window size
+wbox = wsize - (2 * margin)  # e.g. 600
 current_pil_img = ""
 
 current_image_path = ""
@@ -18,15 +20,14 @@ instruct_image_h = 230
 
 oob_hint = "(out of bounds) click on the image to pick padding color"
 
-
 # utils
 def setup_cropped_image(path):
 	pil_img = Image.open(path)
 	width, height = pil_img.size
-	coefficient = wbox / width # get scale coefficient, for example 0.46 to scale image height also
+	coefficient = wbox / width  # get scale coefficient, for example 0.46 to scale image height also
 	new_height = int(round(height * coefficient))
 	pil_img = pil_img.resize((wbox, new_height))
-	#print("image size: ", pil_img.size)
+	# print("image size: ", pil_img.size)
 
 	global current_pil_img
 	current_pil_img = pil_img
@@ -34,23 +35,29 @@ def setup_cropped_image(path):
 	thumb_photoimg = ImageTk.PhotoImage(pil_img)
 	return thumb_photoimg, new_height
 
+
 def get_ext(fn):
 	return "." + fn.split(".")[-1]
 
+
+def ensure_thumbnail_exists(thumb_fullpath: str, thumb_url: str):
+	if os.path.exists(thumb_fullpath) is False:
+		thumb_url = thumb_url.replace("/vi_webp/", "/vi/").replace(".webp", ".jpg")
+		download_image(thumb_url, thumb_fullpath)
+
+
 # https://stackoverflow.com/questions/51591456/can-i-use-rgb-in-tkinter#51592104
 def _from_rgb(rgb):
-	"""
-	translates an rgb tuple of int to a tkinter friendly color code
-	"""
-	return "#%02x%02x%02x" % rgb   # noqa: UP031
+	"""translates an rgb tuple of int to a tkinter friendly color code"""
+	return "#%02x%02x%02x" % rgb  # noqa: UP031
 
-def _opposite_color(r,g,b):
+
+def _opposite_color(r, g, b):
 	return (255 - r, 255 - g, 255 - b)
 
-"""
-creates a tkinter gui, then uses the arrow keys to select thumbnail mode. enter is submit
-"""
+
 def pick_thumb_mode(thumb_fullpath):
+	"""creates a tkinter gui, then uses the arrow keys to select thumbnail mode. enter is submit"""
 	global root
 	root = tkinterDnD.Tk()
 	root.title("Thumbnail to Album Art editor v2")
@@ -63,24 +70,24 @@ def pick_thumb_mode(thumb_fullpath):
 	thumb_photoimg, new_height = setup_cropped_image(thumb_fullpath)
 
 	global current_image_path
-	current_image_path = thumb_fullpath # update the global path refrence
+	current_image_path = thumb_fullpath  # update the global path refrence
 
 	global canvas_image
-	canvas_image = canvas.create_image(wsize/2, wsize/2, image=thumb_photoimg)
+	canvas_image = canvas.create_image(wsize / 2, wsize / 2, image=thumb_photoimg)
 
 	global top_offset
 	global rsize
 	rsize = new_height
-	top_offset = ( wsize / 2 )-( new_height / 2 )
+	top_offset = (wsize / 2) - (new_height / 2)
 
 	global crop_rect
-	startx = (wsize/2) - (rsize/2)
+	startx = (wsize / 2) - (rsize / 2)
 	crop_rect = canvas.create_rectangle(startx, top_offset, startx + rsize, rsize + top_offset, outline="black", width=5)
 
 	# instructions 0.359375 is to get 230 px
 	instruct_pil_img = Image.open(c.INSTRUCTINOS_PATH)
 	instruct_imagetk = ImageTk.PhotoImage(instruct_pil_img)
-	canvas.create_image(wsize/2, (wsize + instruct_image_h) - (instruct_image_h / 2), image=instruct_imagetk)
+	canvas.create_image(wsize / 2, (wsize + instruct_image_h) - (instruct_image_h / 2), image=instruct_imagetk)
 
 	canvas.bind_all("<Left>", left)
 	canvas.bind_all("<Down>", center)
@@ -102,17 +109,20 @@ def pick_thumb_mode(thumb_fullpath):
 	# print(">>> pick_thumb_mode is returning:", thumb_mode)
 	return thumb_mode
 
+
 # helper functions for the tkinter gui
 def left(e):
 	canvas.coords(crop_rect, margin, top_offset, rsize, rsize + top_offset)
 	global thumb_mode
 	thumb_mode = "left"
 
+
 def center(e):
-	startx = (wsize/2) - (rsize/2)
+	startx = (wsize / 2) - (rsize / 2)
 	canvas.coords(crop_rect, startx, top_offset, startx + rsize, rsize + top_offset)
 	global thumb_mode
 	thumb_mode = "center"
+
 
 def right(e):
 	startx = (wsize - margin) - rsize
@@ -120,10 +130,12 @@ def right(e):
 	global thumb_mode
 	thumb_mode = "right"
 
+
 def padded(e):
-	canvas.coords(crop_rect, margin, margin, wsize-margin, wsize-margin)
+	canvas.coords(crop_rect, margin, margin, wsize - margin, wsize - margin)
 	global thumb_mode
 	thumb_mode = "padded"
+
 
 def submit(e):
 	global thumb_mode
@@ -131,6 +143,7 @@ def submit(e):
 	# print(thumb_mode)
 	root.quit()
 	root.destroy()
+
 
 def drop(e):
 	path = str(e.data)
@@ -143,10 +156,10 @@ def drop(e):
 	global thumb_mode
 	print("loaded image: ", path)
 	if ".jpg" in path or ".png" in path:
-		global dropped_image # when an image is drag-n-dropped into the gui, update it
+		global dropped_image  # when an image is drag-n-dropped into the gui, update it
 
 		global new_height
-		dropped_image, new_height = setup_cropped_image(path) # this also updates new_height, which is used when calculating image offset
+		dropped_image, new_height = setup_cropped_image(path)  # this also updates new_height, which is used when calculating image offset
 		# print(dropped_image) # tkinter PhotoImage
 
 		# global thumb_photoimg
@@ -154,9 +167,10 @@ def drop(e):
 		# ^ is probably not needed since we only care about current_pil_img (PIL object)
 
 		global current_image_path
-		current_image_path = path # update the global path refrence according to the dropped image
+		current_image_path = path  # update the global path refrence according to the dropped image
 
 		canvas.itemconfig(canvas_image, image=dropped_image)
+
 
 def click(e):
 	# set a custom padding color
@@ -172,24 +186,25 @@ def click(e):
 			getpixel = current_pil_img.getpixel((img_x, img_y))
 			# print("getpixel: ", getpixel)
 			if len(getpixel) == 3:
-				r,g,b = getpixel
+				r, g, b = getpixel
 			elif len(getpixel) == 4:
-				r,g,b,alpha = getpixel
+				r, g, b, alpha = getpixel
 			# opposite_color = _opposite_color(r,g,b)
 			# print("> picked: ", (r, g, b), "opposite: ", opposite_color)
-			
-			canvas.config(bg=_from_rgb((r,g,b)))
+
+			canvas.config(bg=_from_rgb((r, g, b)))
 			# canvas.itemconfig(text1, fill=_from_rgb(opposite_color))
 			# canvas.itemconfig(text2, fill=_from_rgb(opposite_color))
 			# canvas.itemconfig(crop_rect, outline=_from_rgb(opposite_color))
 
 			global current_padding_color
-			current_padding_color = (r,g,b)
+			current_padding_color = (r, g, b)
 		except:
 			print(oob_hint)
 	else:
 		print(oob_hint)
-	
+
+
 def right_click(e):
 	# reset the custom padding color
 	canvas.config(bg="white")
@@ -199,16 +214,16 @@ def right_click(e):
 	global current_padding_color
 	current_padding_color = (0, 0, 0)
 
-"""
-wrapper for pick_thumb_mode. calls it recursively if a new thumbnail is dropped in the gui
-"""
+
 def thumb_gui(thumb_fullpath):
+	"""wrapper for pick_thumb_mode. calls it recursively if a new thumbnail is dropped in the gui"""
 	mode = pick_thumb_mode(thumb_fullpath)
 
 	if ".png" in mode or ".jpg" in mode:
 		return thumb_gui(mode)
 	else:
 		return mode
+
 
 def crop_image(imgpath, mode, savepath):
 	pil_img = Image.open(imgpath)
@@ -229,7 +244,7 @@ def crop_image(imgpath, mode, savepath):
 
 	if pil_img.mode != "RGB":
 		pil_img = pil_img.convert("RGB")
-	
+
 	if ".png" in savepath:
 		savepath = savepath.replace(".png", ".jpg")
 
@@ -237,10 +252,8 @@ def crop_image(imgpath, mode, savepath):
 	pil_img.save(savepath)
 
 
-"""
-use thumb_gui to defnitevly get mode and then crop latest image accordingly
-"""
 def thumb_gui_crop(thumb_fullpath):
+	"""use thumb_gui to defnitevly get mode and then crop latest image accordingly"""
 	mode = thumb_gui(thumb_fullpath)
 	print("> resulting cover mode is: ", mode)
 	global root
@@ -249,13 +262,12 @@ def thumb_gui_crop(thumb_fullpath):
 		root.destroy()
 	except:
 		pass
-	crop_image(current_image_path, mode, "musicdl_assets\\out" + get_ext(current_image_path.split("\\")[-1])) 
+	crop_image(current_image_path, mode, "musicdl_assets\\out" + get_ext(current_image_path.split("\\")[-1]))
 	print("Focus / Go back to the terminal to continue")
 	print()
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
 	thumb_gui_crop(c.THUMBNAIL_FULLPATH)
 	# mode = thumb_gui(thumb_fullpath)
 	# print("after exit the thing is:", mode)
