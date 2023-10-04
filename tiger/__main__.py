@@ -47,7 +47,6 @@ def main_cli():
 
 	ytd_opts["paths"] = {"home": config["savedir"]}
 
-	_id, title = "", ""
 	# link = "https://www.youtube.com/watch?v=YBHxSFI_Q3Q"
 	# link = "https://www.youtube.com/watch?v=gLYWLobR248" #jreg
 	# link = https://www.youtube.com/watch?v=29KS5pStm4o # happy pill official visualizer
@@ -89,13 +88,12 @@ def main_cli():
 
 	# 1. DOWNLOAD ALL AUDIO
 	info = download_video(link, ytd_opts)
-	_id, title = info["id"], info["title"]
 	
 	for item in info["requested_downloads"]:
 
 		# 2. CROP THUMBNAIL
 		print("Go to the new Tkinter window to select your thumbnail")
-		thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{_id}].jpg"))
+		thumb_fullpath = abspath(os.path.join(c.MUSICDL_ASSETS, f"thumb[{info['id']}].jpg"))
 		ensure_thumbnail_exists(thumb_fullpath, info["thumbnail"])
 		thumb_gui_crop(thumb_fullpath=thumb_fullpath)
 
