@@ -33,7 +33,7 @@ ytd_opts = {
 }
 
 def _no_traceback_excepthook(exc_type, exc_val, traceback):
-    pass
+	pass
 
 def main_cli():
 	global config
@@ -109,13 +109,13 @@ def main_cli():
 		os.system("pause")
 
 def main():
-    try:
-        main_cli()
-    except KeyboardInterrupt:
-        # whatever cleanup code you need here...
-        if sys.excepthook is sys.__excepthook__:
-            sys.excepthook = _no_traceback_excepthook
-        raise
+	try:
+		main_cli()
+	except KeyboardInterrupt:
+		# whatever cleanup code you need here...
+		if sys.excepthook is sys.__excepthook__:
+			sys.excepthook = _no_traceback_excepthook
+		raise
 
 if __name__ == "__main__":
-    main()
+	main()
