@@ -8,7 +8,7 @@ SRC_CWD = os.path.join(os.getcwd(), "src")
 CONFIG_PATH = abspath(os.path.join(SRC_CWD, "..", "config.json"))
 JSONDUMP_PATH = abspath(os.path.join(SRC_CWD, "..", MUSICDL_ASSETS, "jsondump.json"))
 INSTRUCTINOS_PATH = abspath(os.path.join(SRC_CWD, "..", ASSET_DIR, "instructions.png"))
-THUMBNAIL_FULLPATH = abspath(os.path.join(SRC_CWD, "..", MUSICDL_ASSETS, "thumb[CaiE3L8SCxo].jpg")) 
+THUMBNAIL_FULLPATH = abspath(os.path.join(SRC_CWD, "..", MUSICDL_ASSETS, "thumb[6UdQjCIPhDk].jpg")) 
 
 # might remove this file, idk. 
 # if you run some file that imports this as src.constants, and it's not musicdl.py, it crashes
