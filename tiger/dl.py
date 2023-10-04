@@ -1,6 +1,7 @@
 import json
 import os
 from os.path import abspath
+from typing import Any
 
 import eyed3 as tagger
 from eyed3.id3 import ID3_V2_3, ID3_V2_4
@@ -16,6 +17,17 @@ from tiger.utils import download_image, format_release_date, sanitize_text, user
 # you can use https://greasyfork.org/en/scripts/446275-youtube-screenshoter to get any frame of the video quickly (hold ctrl to download instead of clipboard)
 
 ASSET_DIR = "musicdl_assets"
+
+def fetch_video_info(link: str, ytd_opts: dict[str, Any], downloading_playlist = False, save_json_dump = False):
+	with YoutubeDL(ytd_opts) as ydl:
+		if not downloading_playlist:
+			prefetch_info = ydl.extract_info(link, download=False)
+			if save_json_dump:
+				f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
+				json.dump(ydl.sanitize_info(prefetch_info), f, indent=4, ensure_ascii=False)
+				f.close()
+
+			return prefetch_info
 
 def main():
 	savedir = "D:/music/#deezloader downloads"
@@ -104,20 +116,15 @@ def main():
 			link = link[:link.index("&list=")] #slice off the index part
 			print("[info] downloading song only")
 
-	with YoutubeDL(ytd_opts) as ydl:
-		if not flag_downloading_playlist:
-			prefetch_info = ydl.extract_info(link, download=False)
-			if save_json_dump:
-				f = open(c.JSONDUMP_PATH, "w", encoding="utf8")
-				json.dump(ydl.sanitize_info(prefetch_info), f, indent=4, ensure_ascii=False)
-				f.close()
+	prefetch_info = fetch_video_info(link, ytd_opts, flag_downloading_playlist, save_json_dump)
 
-			if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
-				print('[warning] link you entered contains "(Official" and "Video)"')
-				print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
-				confirm = input("type Y/y/Yes to continue, anything else to abort: ")
-				if confirm.lower() not in ["y", "yes"]:
-					quit()
+	if "(Official" in prefetch_info["title"] and " Video)" in prefetch_info["title"]:
+		print('[warning] link you entered contains "(Official" and "Video)"')
+		print("It is recommended to use a music.youtube.com url or (Offical Audio) instead.")
+		confirm = input("type Y/y/Yes to continue, anything else to abort: ")
+		if confirm.lower() not in ["y", "yes"]:
+			quit()
+
 	print()
 
 	with YoutubeDL(ytd_opts) as ydl:
