@@ -15,6 +15,8 @@
 
 Have you ever downloaded music from youtube, but a bunch of stuff is wrong with it?
 Like there's no album cover, half the tags are missing, the bitrate is questionable and the filename has the downloader's name appended at the end? Yeah, me too, that's why i've made this.
+
+**This project is no longer maintained, as it was super seeded by [shira](https://github.com/KraXen72/shira).**
   
 # features
 - **fast & easy to use**. usually just hit enter a few times to confirm the tags.
